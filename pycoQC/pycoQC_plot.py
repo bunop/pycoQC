@@ -125,7 +125,7 @@ class pycoQC_plot ():
             return np.sum(list(self.ref_len_dict.values()))
 
     def _run_duration(self, df):
-        return float(np.ptp(df["start_time"])/3600)
+        return float(np.ptp(df["start_time"]))/3600
 
     def _active_channels(self, df):
         return int(df["channel"].nunique())
@@ -579,8 +579,8 @@ class pycoQC_plot ():
         data = df[field_name].dropna().values
 
         # Count each categories in log or linear space
-        min = np.nanmin(data)
-        max = np.nanmax(data)
+        min = float(np.nanmin(data))
+        max = float(np.nanmax(data))
         if x_scale == "log":
             count_y, bins = np.histogram (a=data, bins=np.logspace (np.log10(min), np.log10(max)+0.1, nbins))
         elif x_scale == "linear":
@@ -862,7 +862,7 @@ class pycoQC_plot ():
 
         # Prepare data for x
         x_data = df[x_field_name].values
-        x_min, x_med, x_max = np.percentile (x_data, (0, 50, 100))
+        x_min, x_med, x_max = np.percentile (x_data, (0, 50, 100)).tolist()
         if x_scale == "log":
             x_bins = np.logspace (start=np.log10((x_min)), stop=np.log10(x_max)+0.1, num=x_nbins, base=10)
         else:
@@ -870,7 +870,7 @@ class pycoQC_plot ():
 
         # Prepare data for y
         y_data = df[y_field_name].values
-        y_min, y_med, y_max = np.percentile (y_data, (0, 50, 100))
+        y_min, y_med, y_max = np.percentile (y_data, (0, 50, 100)).tolist()
         if y_scale == "log":
             y_bins = np.logspace (start=np.log10((y_min)), stop=np.log10(y_max)+0.1, num=y_nbins, base=10)
         else:
@@ -967,7 +967,7 @@ class pycoQC_plot ():
 
         # Bin data in categories
         t = (df["start_time"]/3600).values
-        x = np.linspace (t.min(), t.max(), num=time_bins)
+        x = np.linspace (float(t.min()), float(t.max()), num=time_bins)
         t = np.digitize (t, bins=x, right=True)
 
         # Count reads or bases per categories
@@ -1250,7 +1250,7 @@ class pycoQC_plot ():
 
         # Bin data in categories
         t = (df["start_time"]/3600).values
-        x = np.linspace (t.min(), t.max(), num=time_bins)
+        x = np.linspace (float(t.min()), float(t.max()), num=time_bins)
         t = np.digitize (t, bins=x, right=True)
 
         # List quality value per categories
@@ -1420,11 +1420,11 @@ class pycoQC_plot ():
 
         # Bin data in categories
         t = (df["start_time"]/3600).values
-        bins = np.linspace (t.min(), t.max(), num=time_bins)
+        bins = np.linspace (float(t.min()), float(t.max()), num=time_bins)
         t = np.digitize (t, bins=bins, right=True)
 
         # Count values per categories
-        z = np.ones((len(bins), n_channels), dtype=np.int)
+        z = np.ones((len(bins), n_channels), dtype=int)
         if count_level == "bases":
             for t_idx, channel, n_bases in zip(t, df["channel"], df["read_len"]):
                 z[t_idx][channel-1]+=n_bases
@@ -1708,8 +1708,7 @@ class pycoQC_plot ():
 
     @staticmethod
     def _compute_N50 (data):
-        data = data.dropna().values
-        data.sort()
+        data = np.sort(data.dropna().values)[::-1]  # longest reads first: the standard N50
         half_sum = data.sum()/2
         cum_sum = 0
         for v in data:
@@ -1721,8 +1720,8 @@ class pycoQC_plot ():
     def _compute_hist (data, x_scale="linear", smooth_sigma=2, nbins=200):
 
         # Count each categories in log or linear space
-        min = np.nanmin(data)
-        max = np.nanmax(data)
+        min = float(np.nanmin(data))
+        max = float(np.nanmax(data))
 
         if x_scale == "log":
             count_y, bins = np.histogram (a=data, bins=np.logspace (np.log10(min), np.log10(max)+0.1, nbins))

@@ -6,7 +6,7 @@
 import argparse
 import sys
 import textwrap
-from pkg_resources import resource_filename
+from importlib.resources import files
 
 # Third party imports
 from jinja2 import Environment, PackageLoader, Template
@@ -89,27 +89,25 @@ def main_pycoQC (args=None):
     parser_verbosity.add_argument("-q", "--quiet", action="store_true", default=False, help="Reduce verbosity")
 
     # Try to parse arguments
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     # Set logging level
     logger = get_logger (name=__name__, verbose=args.verbose, quiet=args.quiet)
 
     # Print the default config parameters and exit
     if args.default_config:
-        config_file = resource_filename("pycoQC", "templates/pycoQC_config.json")
-        with open (config_file) as fp:
-            sys.stdout.write(fp.read())
+        sys.stdout.write(files("pycoQC").joinpath("templates/pycoQC_config.json").read_text())
         sys.exit()
 
     elif not args.summary_file:
         logger.warning ("ERROR: `--summary_file` is a required argument")
         parser.print_help()
-        sys.exit()
+        sys.exit(1)
 
     elif not args.html_outfile and not args.json_outfile:
         logger.warning ("ERROR: At least one output file required `--html_outfile` or `--json_outfile`")
         parser.print_help()
-        sys.exit()
+        sys.exit(1)
 
     # Run pycoQC
     pycoQC (
@@ -162,7 +160,7 @@ def main_Fast5_to_seq_summary (args=None):
         help="Level of verbosity, from 2 (Chatty) to 0 (Nothing) (default: %(default)s)")
 
     # Try to parse arguments
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     # Run main function
     Fast5_to_seq_summary (
@@ -202,7 +200,7 @@ def main_Barcode_split (args=None):
     parser_verbosity.add_argument("-q", "--quiet", action="store_true", default=False, help="Reduce verbosity")
 
     # Try to parse arguments
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     # Run main function
     Barcode_split (

@@ -2,21 +2,21 @@
 
 ## Create a clean virtual environment (optional but recommended)
 
-Ideally, before installation, create a clean **python3.6+** virtual environment to deploy the package.
-Earlier version of Python3 should also work but **Python 2 is not supported**.
+Ideally, before installation, create a clean **python3.12+** virtual environment to deploy the package.
+Older versions of Python are not supported by this release: use pycoQC 2.5.2 with Python 3.6 to 3.11.
 For example one can use conda or virtualenvwrapper.
 
 With [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/install.html):
 
 ```bash
-mkvirtualenv pycoQC -p python3.6
+mkvirtualenv pycoQC -p python3.12
 workon pycoQC
 ```
 
 With [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html):
 
 ```bash
-conda create -n pycoQC python=3.6
+conda create -n pycoQC python=3.12
 conda activate pycoQC
 ```
 
@@ -24,13 +24,15 @@ conda activate pycoQC
 
 pycoQC relies on a few robustly maintained third party libraries listed below. The correct versions of the packages are installed together with the software when using pip.
 
-* numpy>=1.13
-* scipy>=1.1
-* pandas>=0.23
-* plotly>=3.4
-* jinja2>=2.10
-* h5py>=2.8.0
-* tqdm>=4.23'
+* numpy>=2.5
+* scipy>=1.18
+* pandas>=3.1
+* plotly>=7.2
+* jinja2>=3.1
+* markupsafe>=3.0
+* h5py>=3.16
+* tqdm>=4.70
+* pysam>=0.24
 
 ## Option 1: Installation with pip from pypi
 

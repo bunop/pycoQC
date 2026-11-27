@@ -163,7 +163,7 @@ class pycoQC_parse ():
             self.logger.debug ("\t\tFound valid Deepbinner barcode file")
             df = df [["read_ID", "barcode_call"]]
             df = df.rename(columns={"read_ID":"read_id", "barcode_call":"barcode"})
-            df['barcode'].replace("none", "unclassified", inplace=True)
+            df['barcode'] = df['barcode'].replace("none", "unclassified")
         else:
             raise pycoQCError ("File {} does not contain required barcode information".format(fp))
 
@@ -208,7 +208,7 @@ class pycoQC_parse ():
         # Convert aligments_dict to df
         if alignments_dict:
             alignments_df = pd.DataFrame.from_dict(alignments_dict, orient="index")
-            alignments_df.reset_index(inplace=True)
+            alignments_df = alignments_df.reset_index()
             alignments_df.columns=["Alignments", "Counts"]
             alignments_df["Percents"] = (alignments_df["Counts"]/alignments_df["Counts"].sum()*100).round(2)
         else:
@@ -218,7 +218,7 @@ class pycoQC_parse ():
         if read_dict:
             read_df = pd.DataFrame.from_dict(read_dict, orient="index")
             read_df.index.name="read_id"
-            read_df.reset_index(inplace=True)
+            read_df = read_df.reset_index()
         else:
             read_df = pd.DataFrame()
 
@@ -231,7 +231,7 @@ class pycoQC_parse ():
         # Merge df and fill in missing barcode values
         if not barcode_reads_df.empty:
             df = pd.merge(df, barcode_reads_df, on="read_id", how="left")
-            df['barcode'].fillna('unclassified', inplace=True)
+            df['barcode'] = df['barcode'].fillna('unclassified')
 
         # Merge df and fill in missing barcode values
         if not bam_reads_df.empty:

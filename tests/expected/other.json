@@ -1,0 +1,64 @@
+{
+ "barcode_split_files": {
+  "sequencing_summary_1.txt": "456be3be2c1b827f",
+  "sequencing_summary_2.txt": "8b0e730e5f25f45d",
+  "sequencing_summary_3.txt": "f44e2a758f7abf9e",
+  "sequencing_summary_4.txt": "abcd689f3f30e29c",
+  "sequencing_summary_5.txt": "e6a302e4675f4bc9",
+  "sequencing_summary_6.txt": "a4b295c7e0512434",
+  "sequencing_summary_7.txt": "a6602475a0527b18",
+  "sequencing_summary_8.txt": "fec0cdd2a7c160cf"
+ },
+ "fast5": {
+  "header": "read_id\trun_id\tchannel\tstart_time\tsequence_length_template\tmean_qscore_template\tcalibration_strand_genome_template",
+  "rows": 22,
+  "sorted_rows_sha": "d45aeb148d062f32"
+ },
+ "plot_lists": {
+  "Guppy-2.1.3_basecall-1D-DNA_sequencing_summary": [
+   "General run summary",
+   "Basecall summary",
+   "Basecalled reads length",
+   "Basecalled reads PHRED quality",
+   "Basecalled reads length vs reads PHRED quality",
+   "Output over experiment time",
+   "Read length over experiment time",
+   "Read quality over experiment time",
+   "Channel activity over time"
+  ],
+  "bam_clean": [
+   "General run summary",
+   "Basecall summary",
+   "Alignment summary",
+   "Basecalled reads length",
+   "Aligned reads length",
+   "Basecalled reads PHRED quality",
+   "Aligned reads identity",
+   "Basecalled reads length vs reads PHRED quality",
+   "Basecalled reads length vs alignments length",
+   "Aligned reads length vs alignments identity",
+   "Reads PHRED quality vs alignments identity",
+   "Output over experiment time",
+   "Read length over experiment time",
+   "Read quality over experiment time",
+   "Aligned reads length over experiment time",
+   "Aligned reads identity over experiment time",
+   "Channel activity over time",
+   "Summary of reads alignment",
+   "Bases alignment rate",
+   "Coverage overview"
+  ],
+  "barcode_deepbinner": [
+   "General run summary",
+   "Basecall summary",
+   "Basecalled reads length",
+   "Basecalled reads PHRED quality",
+   "Basecalled reads length vs reads PHRED quality",
+   "Output over experiment time",
+   "Read length over experiment time",
+   "Read quality over experiment time",
+   "Number of reads per barcode",
+   "Channel activity over time"
+  ]
+ }
+}
