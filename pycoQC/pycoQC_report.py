@@ -4,13 +4,14 @@
 #~~~~~~~~~~~~~~IMPORTS~~~~~~~~~~~~~~#
 # Standard library imports
 import json
-from pkg_resources import resource_filename
+from importlib.resources import files
 import datetime
 import os
 
 # Third party imports
 import plotly.offline as py
 import jinja2
+from markupsafe import Markup, escape
 
 # Local imports
 from pycoQC.common import *
@@ -69,6 +70,10 @@ class pycoQC_report ():
         config_dict = self._get_config(config_file)
         self.logger.debug(config_dict)
 
+        # Load HTML template for Jinja (before the plots are built, so a bad template fails fast)
+        self.logger.info("\tLoading HTML template")
+        template = self._get_jinja_template(template_file)
+
         # Loop over configuration file and run the pycoQC functions defined
         plots = list()
         titles = list()
@@ -85,6 +90,9 @@ class pycoQC_report ():
                 method_args["plot_title"]=""
 
                 # Get method and generate plot
+                if not hasattr(self.plotter, method_name):
+                    self.logger.warning("\t\t{} is not a valid plotting method, skipped".format(method_name))
+                    continue
                 method = getattr(self.plotter, method_name)
                 fig = method(**method_args)
                 plot = py.plot(
@@ -93,22 +101,13 @@ class pycoQC_report ():
                     include_plotlyjs=False,
                     image_width='',
                     image_height='',
-                    show_link=False,
                     auto_open=False)
 
-                plots.append(plot)
+                plots.append(Markup(plot))  # plotly writes < and > in the figure data as \u003c / \u003e; Markup keeps jinja from escaping the div
                 titles.append(plot_title)
-
-            except AttributeError as E:
-                self.logger.info("\t\t{} is not a valid plotting method".format(method_name))
-                self.logger.info("\t\t{}".format(E))
 
             except pycoQCError as E:
                 self.logger.info("\t\t{}".format(E))
-
-        # Load HTML template for Jinja
-        self.logger.info("\tLoading HTML template")
-        template = self._get_jinja_template(template_file)
 
         # Set a subtitle for the HTML report
         report_subtitle="Generated on {} with {} {}".format( datetime.datetime.now().strftime("%d/%m/%y"), package_name, package_version)
@@ -124,7 +123,7 @@ class pycoQC_report ():
                 src_files += "<h4>Source {} files</h4><ul>".format(name)
                 for f in files_list:
                     f = os.path.abspath(f)
-                    src_files += "<li>{}</li>".format(f)
+                    src_files += "<li>{}</li>".format(escape(f))
                 src_files += "</ul>"
 
         # Render plots
@@ -135,7 +134,7 @@ class pycoQC_report ():
             plotlyjs=py.get_plotlyjs(),
             report_title=report_title,
             report_subtitle=report_subtitle,
-            src_files=src_files)
+            src_files=Markup(src_files))
 
         # Write to HTML file
         self.logger.info("\tWriting to HTML file")
@@ -165,14 +164,12 @@ class pycoQC_report ():
             try:
                 with open(config_file, 'r') as cf:
                     return json.load(cf)
-            except (FileNotFoundError, IOError, json.JSONDecodeError):
-                self.logger.debug ("\t\tConfiguration file not found, non-readable or invalid")
+            except (FileNotFoundError, IOError, json.JSONDecodeError) as E:
+                raise pycoQCError("Cannot use the config file {}: {}".format(config_file, E))
 
         # Last use the default harcoded config_dict
         self.logger.debug ("\tRead default configuration file")
-        config_file = resource_filename("pycoQC", "templates/pycoQC_config.json")
-        with open(config_file, 'r') as cf:
-            return json.load(cf)
+        return json.loads(files("pycoQC").joinpath("templates/pycoQC_config.json").read_text())
 
     def _get_jinja_template(self, template_file=None):
         """"""
@@ -180,16 +177,18 @@ class pycoQC_report ():
         if template_file:
             self.logger.debug("\tTry to load provided jinja template file")
             try:
-                with open(template_file) as fp:
-                    template = jinja2.Template(fp.read())
-                    return template
-            except (FileNotFoundError, IOError, jinja2.exceptions.TemplateNotFound, jinja2.exceptions.TemplateSyntaxError):
-                self.logger.debug ("\t\tFile not found, non-readable or invalid")
+                # SEC-002: autoescape for custom templates too
+                env = jinja2.Environment (
+                    loader=jinja2.FileSystemLoader(os.path.dirname(os.path.abspath(template_file))),
+                    autoescape=True)
+                return env.get_template(os.path.basename(template_file))
+            except (FileNotFoundError, IOError, jinja2.exceptions.TemplateNotFound, jinja2.exceptions.TemplateSyntaxError) as E:
+                raise pycoQCError("Cannot use the template file {}: {}".format(template_file, E))
 
         # Last use the default harcoded config_dict
         self.logger.debug ("\tRead default jinja template")
         env = jinja2.Environment (
             loader=jinja2.PackageLoader('pycoQC', 'templates'),
-            autoescape=jinja2.select_autoescape(["html"]))
+            autoescape=True)
         template = env.get_template('spectre.html.j2')
         return template

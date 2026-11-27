@@ -10,6 +10,9 @@ In case you do not have access to a summary sequencing file, pycoQC comes with `
 
 * [pycoQC API usage notebook](API_usage.ipynb)
 
+!!! note "Python 3.14 and later"
+    The Fast5 reader starts worker processes with the `forkserver` method, which imports the calling script again. When you call `Fast5_to_seq_summary` from a plain Python script, put the call under `if __name__ == "__main__":` (Jupyter notebooks and the command line are not affected).
+
 ### Shell CLI
 
 * [pycoQC CLI usage notebook](CLI_usage.ipynb)

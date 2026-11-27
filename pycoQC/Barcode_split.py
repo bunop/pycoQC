@@ -7,6 +7,7 @@ from collections import *
 import warnings
 import datetime
 import os
+import re
 
 # Third party imports
 import pandas as pd
@@ -90,6 +91,7 @@ def Barcode_split (
 
     bc = namedtuple ("bc", ["Counts", "Write"])
     bc_l = OrderedDict()
+    written = {}
 
     logger.warning ("Split data per barcode")
     for barcode, barcode_df in df.groupby("barcode"):
@@ -109,7 +111,14 @@ def Barcode_split (
             # Remove any field containing barcode in it
             barcode_df = barcode_df[[i for i in df.columns if not i.startswith("barcode")]]
             # Write to file
-            file_name = os.path.join(output_dir, "sequencing_summary_{}.txt".format(barcode))
+            # SEC-006: the barcode label becomes part of a file name, so keep it to safe characters
+            safe_barcode = re.sub(r"[^A-Za-z0-9._-]", "_", str(barcode))
+            if safe_barcode != barcode:
+                logger.warning ("Barcode {!r} written as {}".format(barcode, safe_barcode))
+            if safe_barcode in written:
+                raise pycoQCError ("Barcodes {!r} and {!r} would be written to the same file".format(written[safe_barcode], barcode))
+            written[safe_barcode] = barcode
+            file_name = os.path.join(output_dir, "sequencing_summary_{}.txt".format(safe_barcode))
             barcode_df.to_csv(file_name, sep="\t", index=False)
 
     logger.info("Barcode Counts")

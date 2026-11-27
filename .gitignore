@@ -103,4 +103,6 @@ ENV/
 
 # data
 tests/
+# the characterization tests of the 3.0 uplift live in tests/
+!/tests/
 docs/*/large_data/

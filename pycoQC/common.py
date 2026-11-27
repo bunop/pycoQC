@@ -61,7 +61,7 @@ def sequencing_summary_file_sample (infile, outfile=None, n_seq=10000):
         Overall number of sequence lines to sample
     """
     df = pd.read_csv(infile, sep ="\t")
-    df.dropna (inplace=True)
+    df = df.dropna ()
     total = len(df)
     print ("{} sequences".format(total))
 
@@ -72,11 +72,11 @@ def sequencing_summary_file_sample (infile, outfile=None, n_seq=10000):
             n_to_sample=1
         print ("{} = {} seq, to sample = {}".format (runid, len(runid_df), n_to_sample))
         sdf = runid_df.sample(n_to_sample)
-        sdf.sort_values("start_time", inplace=True)
+        sdf = sdf.sort_values("start_time")
         l.append(sdf)
 
     df = pd.concat(l)
-    df.reset_index(inplace=True, drop=True)
+    df = df.reset_index(drop=True)
     if outfile:
         if outfile.endswith("gz"):
             df.to_csv(outfile, index=False, sep="\t", compression="gzip")

@@ -197,6 +197,14 @@ class Fast5_to_seq_summary ():
 
             for fast5_fn in iter(in_q.get, None):
 
+                # SEC-007: a file that cannot be opened as HDF5 is skipped, it does not stop the batch
+                try:
+                    h5py.File(fast5_fn, "r").close()
+                except OSError as E:
+                    logger.warning ("Skipping unreadable fast5 file {}: {}".format(fast5_fn, E))
+                    c["overall"]["unreadable files"] += 1
+                    continue
+
                 with h5py.File(fast5_fn, "r") as h5_fp:
 
                     multi_read = 'file_type' in h5_fp.attrs.keys() and h5_fp.attrs['file_type'] == b'multi-read'
@@ -303,6 +311,9 @@ class Fast5_to_seq_summary ():
                 for k, v in worker_c.items():
                     for k2, v2 in v.items():
                         c[k][k2] += v2
+
+            if not l and c["overall"]["unreadable files"]:
+                raise pycoQCError ("No readable fast5 file found: {} unreadable".format(c["overall"]["unreadable files"]))
 
             logger.info ("Overall counts {}".format(dict_to_str(c["overall"])))
             logger.info ("fields found {}".format(dict_to_str(c["fields_found"])))
